@@ -28,8 +28,6 @@ public class NXTRobotService extends UnicastRemoteObject implements NXTRobotServ
 		
 		clientList = new Vector<RadioControlRMIClientInt>();
 		
-		LightSensingEventSource source = new LightSensingEventSource(300);
-		source.addEventListener(this);
 	}
 
 	public void open()throws RemoteException { 

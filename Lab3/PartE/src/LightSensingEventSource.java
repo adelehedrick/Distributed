@@ -35,7 +35,7 @@ public class LightSensingEventSource implements Runnable{
 		while(true) {
 			
 			dist = lightSensor.getLightValue();
-			System.out.println("Light Sensor Distance: " + dist);
+			//System.out.println("Light Sensor Distance: " + dist);
 			
 			/* if dist > MIN_TRIGGER and event_trigger == true then
 			 * reset the trigger.
@@ -46,7 +46,7 @@ public class LightSensingEventSource implements Runnable{
 			
 			/* if dist is less than MIN_TRIGGER send event */
 			else if(!event_triggered && dist < MIN_TRIGGER) {
-				System.out.println("EVENT IS ABOUT TO BE FIRED!");
+				//System.out.println("EVENT IS ABOUT TO BE FIRED!");
 				event_triggered = true;
 				fireEvent();
 			}

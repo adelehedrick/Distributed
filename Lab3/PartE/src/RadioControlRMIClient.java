@@ -3,9 +3,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.net.MalformedURLException;
-import java.rmi.Naming;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
+import java.rmi.*;
 
 import javax.swing.JCheckBox;
 
@@ -52,11 +50,15 @@ public class RadioControlRMIClient extends Frame implements Runnable, KeyListene
 	 * Constructor.
 	 */
 	public RadioControlRMIClient() {
+		
+		
+		
 		this.setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
 		
 		checkBox = new JCheckBox("Light Source Event");
 		checkBox.setFocusable(false);
 		this.add(checkBox);
+		
 		
 		this.addKeyListener(this);
 		this.setVisible(true);
@@ -132,17 +134,19 @@ public class RadioControlRMIClient extends Frame implements Runnable, KeyListene
 	/*
 	 * Window closing event.
 	 */
+	
 	protected void processWindowEvent(WindowEvent e) {		
 		super.processWindowEvent(e);
 		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
 			System.exit(0);
 		}
 	}
+	
 
 	/*
 	 * Main.
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws RemoteException {
 		/*try {
 			NXTConn = NXTCommFactory.createNXTComm(NXTCommFactory.USB);
 		}
@@ -155,6 +159,8 @@ public class RadioControlRMIClient extends Frame implements Runnable, KeyListene
 		String registryURL = "rmi://localhost:" + RMIPortNum + "/NXTRobotService";  
 		      // find the remote object and cast it to an 
 		      //   interface object
+		//System.out.println(registryURL);
+		
 		try {
 			h = (NXTRobotServiceInt)Naming.lookup(registryURL);
 		} catch (MalformedURLException e) {
@@ -168,11 +174,16 @@ public class RadioControlRMIClient extends Frame implements Runnable, KeyListene
 			e.printStackTrace();
 		}
 		      
+		//RadioControlRMIClient client = new RadioControlRMIClient();
+		
+		
+		
 		RadioControlRMIClient s = new RadioControlRMIClient();
 		
+		RadioControlRMIClientImpl imp = new RadioControlRMIClientImpl(s);
 		
 		try {
-			h.registerForCallback(s);
+			h.registerForCallback(imp);
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -180,14 +191,18 @@ public class RadioControlRMIClient extends Frame implements Runnable, KeyListene
 		
 		Thread t = new Thread(s);
 		t.start();
+		
+		
 	}
 
+	
 	@Override
 	public String notifyMe(String message) throws RemoteException {
 		String returnMessage = "Call back received: " + message;
-	    System.out.println(returnMessage);
+	    System.out.println("got here");
 	    
 	    checkBox.setSelected(true);
 	    return returnMessage;
 	}
+	
 }

@@ -26,6 +26,12 @@ public class NXTRobotServiceServer  {
     	  
     	  registryURL = "rmi://localhost:" + RMIPortNum + "/NXTRobotService";
     	  Naming.rebind(registryURL, exportedObj);
+    	  
+  		  LightSensingEventSource source = new LightSensingEventSource(300);
+  		  source.addEventListener(exportedObj);
+  		  source.run();
+    	  
+    	  
 /**/     System.out.println
 /**/        ("Server registered.  Registry currently contains:");
 /**/     // list names currently in the registry
