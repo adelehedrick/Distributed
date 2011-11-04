@@ -10,5 +10,16 @@ public interface NXTRobotServiceInt extends Remote {
 	public void forward(char motorLabel)throws java.rmi.RemoteException;
 	public void backward(char motorLabel)throws java.rmi.RemoteException;
 	public void stop(char motorLabel)throws java.rmi.RemoteException;
+	
+	public void registerForCallback(
+			RadioControlRMIClientInt callbackClientObject
+	    ) throws java.rmi.RemoteException;
+	
+	// This remote method allows an object client to 
+	// cancel its registration for callback
+	
+	  public void unregisterForCallback(
+			  RadioControlRMIClientInt callbackClientObject)
+	    throws java.rmi.RemoteException;
 
 }

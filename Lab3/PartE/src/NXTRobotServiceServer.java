@@ -1,9 +1,10 @@
-import java.rmi.*;
-import java.rmi.server.*;
-import java.rmi.registry.Registry;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
-import java.net.*;
-import java.io.*;
+import java.rmi.registry.Registry;
 
 /**
  * This class represents the object server for the distributed NXT Commands
@@ -21,6 +22,8 @@ public class NXTRobotServiceServer  {
     	  int RMIPortNum = Integer.parseInt(args[0]);
     	  startRegistry(RMIPortNum);
     	  NXTRobotService exportedObj = new NXTRobotService();
+    	  
+    	  
     	  registryURL = "rmi://localhost:" + RMIPortNum + "/NXTRobotService";
     	  Naming.rebind(registryURL, exportedObj);
 /**/     System.out.println

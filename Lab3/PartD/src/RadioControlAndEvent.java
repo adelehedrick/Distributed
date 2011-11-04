@@ -18,7 +18,7 @@ import lejos.pc.comm.NXTCommFactory;
  * arrow key form in the keyboard.
  *
  */
-public class RadioControlAndEvent extends Frame implements Runnable, KeyListener ,LightSensingEventListenerInt{
+public class RadioControlAndEvent extends Frame implements Runnable, KeyListener, LightSensingEventListenerInt{
 
 	/**
 	 * 
@@ -54,11 +54,9 @@ public class RadioControlAndEvent extends Frame implements Runnable, KeyListener
 	{
 		this.setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
 		
-		JPanel panel = new JPanel();
-		this.add(panel);
 		
 		JCheckBox checkBox = new JCheckBox("Light Sensing Event");
-		panel.add(checkBox);
+		this.add(checkBox);
 		
 		checkBox.setFocusable(false);
 		
@@ -144,14 +142,20 @@ public class RadioControlAndEvent extends Frame implements Runnable, KeyListener
 			System.out.println("Error - creating NXT connection");
 		}
 
+		
+		//LEAVE ALL OF THIS ALONE!
 		RadioControlAndEvent s = new RadioControlAndEvent();
+		
 		LightSensingEventSource source = new LightSensingEventSource(300);
 		source.addEventListener(s);
-		source.run();
 		
 		Thread t = new Thread(s);
 		t.start();
 		
+		//THIS MUST STAY HERE!!!!
+		source.run();
+		//DO NOT MOVE!
+
 		
 	}
 

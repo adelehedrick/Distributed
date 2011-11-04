@@ -2,15 +2,12 @@ import java.awt.Frame;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
-import java.util.EventObject;
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 
 import javax.swing.JCheckBox;
-import javax.swing.JPanel;
-
-import lejos.nxt.Motor;
-import lejos.pc.comm.NXTComm;
-import lejos.pc.comm.NXTCommException;
-import lejos.pc.comm.NXTCommFactory;
 
 /*
  * This program is a simple program that
@@ -18,7 +15,7 @@ import lejos.pc.comm.NXTCommFactory;
  * arrow key form in the keyboard.
  *
  */
-public class RadioControlAndEvent extends Frame implements Runnable, KeyListener, LightSensingEventListenerInt{
+public class RadioControlRMIClient extends Frame implements Runnable, KeyListener, RadioControlRMIClientInt {
 
 	/**
 	 * 
@@ -45,21 +42,21 @@ public class RadioControlAndEvent extends Frame implements Runnable, KeyListener
 
 	private int direction;
 
-	static NXTComm NXTConn;
+	// NXTComm NXTConn;
+	
+	static NXTRobotServiceInt h;
+	
+	JCheckBox checkBox;
 
 	/*
 	 * Constructor.
 	 */
-	public RadioControlAndEvent() 
-	{
+	public RadioControlRMIClient() {
 		this.setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
 		
-		
-		JCheckBox checkBox = new JCheckBox("Light Sensing Event");
-		this.add(checkBox);
-		
+		checkBox = new JCheckBox("Light Source Event");
 		checkBox.setFocusable(false);
-		
+		this.add(checkBox);
 		
 		this.addKeyListener(this);
 		this.setVisible(true);
@@ -69,24 +66,34 @@ public class RadioControlAndEvent extends Frame implements Runnable, KeyListener
 
 	public void run() {		
 		while (true) { /* loop forever */
-			switch (command) {
-			case COMMAND_NONE:
-				setTitle("None");
-				Motor.A.stop();
-				break;
-			case COMMAND_FORWARDS:
-				setTitle("Forwards");
-				direction = DIRECTION_FORWARDS;
-				Motor.A.forward();
-				break;
-			case COMMAND_BACKWARDS:
-				setTitle("Backwards");
-				direction = DIRECTION_BACKWARDS;
-				Motor.A.backward();
-				break;
-			default:
-				System.out.println("unknown command " + command);
-				System.exit(1);
+			try {
+				switch (command) {
+				case COMMAND_NONE:
+					setTitle("None");
+					
+						h.stop('A');
+					
+					break;
+				case COMMAND_FORWARDS:
+					setTitle("Forwards");
+					direction = DIRECTION_FORWARDS;
+					h.forward('A');
+					//Motor.A.forward();
+					break;
+				case COMMAND_BACKWARDS:
+					setTitle("Backwards");
+					direction = DIRECTION_BACKWARDS;
+					h.backward('A');
+					//Motor.A.backward();
+					break;
+				default:
+					System.out.println("unknown command " + command);
+					System.exit(1);
+				}
+			
+			} catch (RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
 
 			try {
@@ -96,6 +103,7 @@ public class RadioControlAndEvent extends Frame implements Runnable, KeyListener
 				System.exit(1);
 			}
 		}
+		
 	}
 
 	public void keyPressed(KeyEvent e) {
@@ -135,37 +143,51 @@ public class RadioControlAndEvent extends Frame implements Runnable, KeyListener
 	 * Main.
 	 */
 	public static void main(String[] args) {
-		try {
+		/*try {
 			NXTConn = NXTCommFactory.createNXTComm(NXTCommFactory.USB);
 		}
 		catch(NXTCommException e) {
 			System.out.println("Error - creating NXT connection");
-		}
+		}*/
 
+		int RMIPortNum = Integer.parseInt(args[0]);
 		
-		//LEAVE ALL OF THIS ALONE!
-		RadioControlAndEvent s = new RadioControlAndEvent();
+		String registryURL = "rmi://localhost:" + RMIPortNum + "/NXTRobotService";  
+		      // find the remote object and cast it to an 
+		      //   interface object
+		try {
+			h = (NXTRobotServiceInt)Naming.lookup(registryURL);
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NotBoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		      
+		RadioControlRMIClient s = new RadioControlRMIClient();
 		
 		
-		
-		LightSensingEventSource source = new LightSensingEventSource(300);
-		source.addEventListener(s);
+		try {
+			h.registerForCallback(s);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		Thread t = new Thread(s);
 		t.start();
-		
-		//THIS MUST STAY HERE!!!!
-		source.run();
-		//DO NOT MOVE!
-		
-		
-		
 	}
 
-	public void handleLightSensingEvent(EventObject e) {
-		LightSensingEvent lightEvent = (LightSensingEvent) e;
-		
-		System.out.println(lightEvent.toString());
-		
+	@Override
+	public String notifyMe(String message) throws RemoteException {
+		String returnMessage = "Call back received: " + message;
+	    System.out.println(returnMessage);
+	    
+	    checkBox.setSelected(true);
+	    return returnMessage;
 	}
 }

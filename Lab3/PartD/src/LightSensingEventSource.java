@@ -6,7 +6,7 @@ import lejos.nxt.SensorPort;
 
 public class LightSensingEventSource implements Runnable{
 	
-	private static int MIN_TRIGGER = 30;
+	private static int MIN_TRIGGER = 45;
 	boolean event_triggered = false;
 	int delay_ms=100;
 	
